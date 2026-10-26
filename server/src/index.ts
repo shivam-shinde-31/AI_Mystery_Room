@@ -130,10 +130,10 @@ app.post('/api/v1/cases', strictLimiter, auth, asyncRoute(async (req, res) => {
   if (!req.userId) {
     if (!guestToken) guestToken = randomUUID();
     res.cookie('guest_token', guestToken, { httpOnly: true, sameSite: 'lax', secure: config.cookieSecure, maxAge: 7 * 86400000 });
-    const count = await CaseModel.countDocuments({ guestToken }); if (count >= config.guestCaseLimit) return fail(res, 429, 'GUEST_LIMIT', `Guest case limit reached (${config.guestCaseLimit} cases). Create an account for up to ${config.userDailyCaseLimit} cases per day.`);
+    const count = await CaseModel.countDocuments({ guestToken, status: { $ne: 'failed_generation' } }); if (count >= config.guestCaseLimit) return fail(res, 429, 'GUEST_LIMIT', `Guest case limit reached (${config.guestCaseLimit} cases). Create an account for up to ${config.userDailyCaseLimit} cases per day.`);
   } else {
     const start = new Date(); start.setHours(0, 0, 0, 0);
-    const count = await CaseModel.countDocuments({ ownerId: req.userId, createdAt: { $gte: start } }); if (count >= config.userDailyCaseLimit) return fail(res, 429, 'DAILY_LIMIT', `Daily case limit reached (${config.userDailyCaseLimit} cases). Try again tomorrow.`);
+    const count = await CaseModel.countDocuments({ ownerId: req.userId, createdAt: { $gte: start }, status: { $ne: 'failed_generation' } }); if (count >= config.userDailyCaseLimit) return fail(res, 429, 'DAILY_LIMIT', `Daily case limit reached (${config.userDailyCaseLimit} cases). Try again tomorrow.`);
   }
   const c = await CaseModel.create({ ownerId: req.userId || null, guestToken: req.userId ? null : guestToken, seed: input.data.seed, caseName: input.data.caseName || "", difficulty: input.data.difficulty });
   enqueueGeneration(c);
