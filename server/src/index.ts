@@ -61,9 +61,26 @@ function enqueueGeneration(c: any) {
   generationQueue.enqueue(async () => {
     try {
       const result = await generateCase(c.seed, c.difficulty, stage => { void CaseModel.updateOne({ _id: c._id }, { $set: { generationStage: stage } }); });
+      // Evidence ids from generated cases (for example, "ev_1") are only unique
+      // within one case. MongoDB uses Evidence._id as a collection-wide key, so
+      // namespace each id by its case and update every stored solution reference.
+      const evidenceIdFor = (id: string) => `${String(c._id)}_${id}`;
+      const evidence = result.evidence.map((item: any) => ({
+        ...item,
+        _id: evidenceIdFor(String(item._id ?? item.id)),
+        caseId: c._id
+      }));
+      const solution = result.solution ? {
+        ...result.solution,
+        decisiveEvidenceIds: result.solution.decisiveEvidenceIds.map(evidenceIdFor),
+        redHerrings: result.solution.redHerrings.map((item: any) => ({
+          ...item,
+          evidenceIds: item.evidenceIds.map(evidenceIdFor)
+        }))
+      } : result.solution;
       await EvidenceModel.deleteMany({ caseId: c._id });
-      await EvidenceModel.insertMany(result.evidence.map((e: any) => ({ ...e, caseId: c._id })));
-      await CaseModel.updateOne({ _id: c._id }, { $set: { ...result, status: 'ready', generationStage: 'done', modelMeta: { model: config.aiMock ? 'fixture' : config.geminiModel, promptVersion: PROMPT_VERSION, inputTokens: 0, outputTokens: 0, generationMs: 0 } } });
+      await EvidenceModel.insertMany(evidence);
+      await CaseModel.updateOne({ _id: c._id }, { $set: { ...result, solution, status: 'ready', generationStage: 'done', modelMeta: { model: config.aiMock ? 'fixture' : config.geminiModel, promptVersion: PROMPT_VERSION, inputTokens: 0, outputTokens: 0, generationMs: 0 } } });
     } catch (error) {
       logger.error({ err: error, caseId: String(c._id) }, 'case generation failed');
       const detail = error instanceof Error ? error.message : String(error);
