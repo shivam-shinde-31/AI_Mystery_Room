@@ -56,7 +56,7 @@ async function ownCase(req: Request, id: string) {
   return (req.userId && String(c.ownerId) === req.userId) || (req.guestToken && c.guestToken === req.guestToken) ? c : null;
 }
 const publicCase = (c: any) => ({ id: String(c._id), caseName: c.caseName, seed: c.seed, difficulty: c.difficulty, status: c.status, generationStage: c.generationStage, generationError: c.generationError, title: c.title, setting: c.setting, incidentSummary: c.incidentSummary, incidentTime: c.incidentTime, suspects: c.suspects, createdAt: c.createdAt, updatedAt: c.updatedAt, accusation: c.accusation ? { suspectId: c.accusation.suspectId, reasoning: c.accusation.reasoning, supportingEvidenceIds: c.accusation.supportingEvidenceIds, submittedAt: c.accusation.submittedAt, correct: c.accusation.correct, score: c.accusation.score } : null });
-const publicEvidence = (e: any, payload = false) => ({ id: String(e._id), hasMedia: e.type !== "cctv" || (typeof e.payload?.videoUrl === "string" && e.payload.videoUrl.length > 0), type: e.type, title: e.title, description: e.description, timestamp: e.timestamp, relatedSuspectIds: e.relatedSuspectIds, reliability: e.reliability, ...(payload ? { payload: e.payload } : {}) });
+const publicEvidence = (e: any, payload = false) => ({ id: String(e._id), hasMedia: e.type !== "cctv" || (typeof e.payload?.videoUrl === "string" && e.payload.videoUrl.length > 0) || (Array.isArray(e.payload?.frames) && e.payload.frames.length > 0), type: e.type, title: e.title, description: e.description, timestamp: e.timestamp, relatedSuspectIds: e.relatedSuspectIds, reliability: e.reliability, ...(payload ? { payload: e.payload } : {}) });
 function enqueueGeneration(c: any) {
   generationQueue.enqueue(async () => {
     try {

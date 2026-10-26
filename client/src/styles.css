@@ -89,3 +89,18 @@
 @media(max-width:760px){.topbar nav{gap:11px}.account-badge{min-width:34px}.account-badge small{max-width:70px;font-size:7px}.room-account{display:inline-flex}.case-name-input{font-size:13px}.cctv-video{width:calc(100% - 20px);max-height:58vh;margin:0 10px 18px}}
 
 .case-name-generating{margin:-8px 0 8px!important;color:#e9b04e!important;font:16px 'Playfair Display',Georgia,serif!important}
+/* Evidence media fallbacks and case-matched local scene tiles */
+.scene-photo{position:absolute;inset:0;background-size:300% 200%;background-repeat:no-repeat;transform:scale(1.01)}
+.cctv-exhibit{margin:0 24px 24px;border:1px solid #3b3935;background:#111214}
+.cctv-exhibit .cctv-screen{position:relative;isolation:isolate}
+.cctv-scene{position:absolute;inset:0;background-size:300% 200%;background-repeat:no-repeat;filter:grayscale(.72) brightness(.7) contrast(1.08);transform:scale(1.01)}
+.cctv-scene img,.cctv-frame-svg,.cctv-frame-svg svg{width:100%;height:100%;object-fit:cover;display:block}
+.cctv-overlay,.cctv-caption,.scanlines{z-index:1}
+.cctv-controls{display:flex;align-items:center;gap:12px;padding:11px 14px;color:#aaa69c;font:9px 'DM Mono',monospace}
+.cctv-controls button{width:34px;height:32px;display:grid;place-items:center;background:#211f1b;border:1px solid #51412b;color:#e8ae49;cursor:pointer}
+.cctv-controls input{flex:1;accent-color:#e2a43d}
+.cctv-controls span{white-space:nowrap}
+.evidence-unavailable{margin:0 24px 24px;min-height:190px;display:grid;place-content:center;justify-items:center;gap:10px;background:#151618;border:1px solid #393638;color:#b7afa0;text-align:center;padding:20px}
+.evidence-unavailable p{max-width:460px;line-height:1.6}
+.paper-view .paper-text{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:760px){.cctv-exhibit{margin-left:10px;margin-right:10px}.cctv-controls{gap:8px;padding:9px}.cctv-controls span{font-size:8px}.evidence-unavailable{margin-left:10px;margin-right:10px}}
