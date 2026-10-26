@@ -1,0 +1,1 @@
+Create a realistic fictional WhatsApp-style conversation with 8–40 messages. Include timestamps and natural variation in wording. Keep every fact consistent with the case timeline. Place clues in details without stating the culprit directly. Return JSON only.

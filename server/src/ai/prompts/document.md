@@ -1,0 +1,1 @@
+Create a fictional evidence document (receipt, email, note, report, log, or ticket). Keep it consistent with the case timeline, sanitize-ready, and non-instructional. Return sanitized HTML and plain text as JSON.

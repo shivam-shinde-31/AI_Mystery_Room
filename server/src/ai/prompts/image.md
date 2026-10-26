@@ -1,0 +1,1 @@
+Create a compact SVG scene illustration or document render. Require a viewBox, use only simple shapes and text, stay under 8 KB, and include an altDescription. Do not use scripts, event handlers, foreignObject, external links, remote images, or external fonts. Return JSON only.

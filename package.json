@@ -1,0 +1,26 @@
+{
+  "name": "ai-mystery-room",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": ["shared", "server", "client"],
+  "scripts": {
+    "dev": "npm run build --workspace shared && concurrently -k -n server,client -c yellow,cyan \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm run build --workspace shared && npm --workspace server run dev",
+    "dev:client": "npm run build --workspace shared && npm --workspace client run dev",
+    "build": "npm run build --workspace shared && npm run build --workspace server && npm run build --workspace client",
+    "lint": "eslint .",
+    "typecheck": "npm run build --workspace shared && npm run typecheck --workspace server && npm run typecheck --workspace client",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.19.0",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.22.0",
+    "vitest": "^3.0.5"
+  }
+}

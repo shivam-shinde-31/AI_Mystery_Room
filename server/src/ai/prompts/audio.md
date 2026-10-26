@@ -1,0 +1,1 @@
+Create a transcript only, with speaker names, time offsets, dialogue, and optional noise notes. No audio asset is generated. Keep the transcript consistent with the case timeline and return JSON only.

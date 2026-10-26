@@ -1,0 +1,1 @@
+Create 4–12 timestamped SVG frames from one static camera view. Keep the background and camera angle consistent; change only scene activity between frames. Add neutral captions, a camera label, location, operator log, and explain any footage gaps. Return JSON only.
