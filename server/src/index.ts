@@ -22,6 +22,7 @@ const app = express();
 const generationQueue = new GenerationQueue(Number(process.env.GENERATION_CONCURRENCY || 2));
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 app.disable('x-powered-by');
+app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors({ origin: config.clientOrigin, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
@@ -34,8 +35,27 @@ app.use((req, res, next) => {
   res.on('finish', () => logger.info({ requestId, statusCode: res.statusCode, durationMs: Date.now() - started }, 'request finished'));
   next();
 });
-const globalLimiter = rateLimit({ windowMs: 60_000, limit: 100, standardHeaders: 'draft-7', legacyHeaders: false });
-const strictLimiter = rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: 'draft-7', legacyHeaders: false });
+// Render sits behind proxies, so key limits on the original caller IP instead
+// of the shared proxy address. Render supplies the client address first.
+const forwardedClientIp = (req: Request) => req.get('x-forwarded-for')?.split(',')[0]?.trim() || req.ip || 'unknown';
+const rateLimitMessage = { error: { code: 'RATE_LIMITED', message: 'Too many requests. Wait for the retry period to end before trying again.' } };
+const globalLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 100,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: forwardedClientIp,
+  message: rateLimitMessage,
+  skip: req => req.path === '/health' || req.path === '/api/v1/health'
+});
+const strictLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: forwardedClientIp,
+  message: rateLimitMessage
+});
 app.use(globalLimiter);
 const asyncRoute = (fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>) => (req: Request, res: Response, next: NextFunction) => { void fn(req, res, next).catch(next); };
 const fail = (res: Response, status: number, code: string, message: string) => res.status(status).json({ error: { code, message } });
